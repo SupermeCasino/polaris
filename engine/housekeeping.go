@@ -5,8 +5,11 @@ import (
 	"polaris/log"
 )
 
-func (c *Engine) housekeeping() error {
+func (c *Engine) housekeeping() (err error) {
 	log.Infof("start housekeeping tasks...")
+	defer func() {
+		log.Infof("housekeeping tasks completed. err: %v", err)
+	}()
 
 	if err := c.checkDbScraps(); err != nil {
 		return err
