@@ -179,14 +179,6 @@ func (s *Server) Start(addr string) (int, error) {
 
 	log.Infof("----------- Polaris Server Successfully Started on Port %d------------", p)
 
-	ticker := time.NewTicker(10 * time.Minute)
-	go func() {
-		for {
-			s.cacheDownloadedStatus()
-			<-ticker.C
-		}
-	}()
-
 	return p, nil
 }
 

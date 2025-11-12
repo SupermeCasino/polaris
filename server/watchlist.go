@@ -89,10 +89,16 @@ type MediaWithStatus struct {
 	DownloadedNum int `json:"downloaded_num"`
 }
 
-func (s *Server) cacheDownloadedStatus() {
-	log.Info("cache watchlist downloaded/monitored status")
+
+//missing: episode aired missing
+//downloaded: all monitored episode downloaded
+//monitoring: episode aired downloaded, but still has not aired episode
+//for movie, only monitoring/downloaded
+
+func (s *Server) GetTvWatchlist(c *gin.Context) (interface{}, error) {
 	list := s.db.GetMediaWatchlist(media.MediaTypeTv)
-	for _, item := range list {
+	res := make([]MediaWithStatus, len(list))
+	for i, item := range list {
 		var ms = MediaWithStatus{
 			Media:         item,
 			MonitoredNum:  0,
@@ -120,51 +126,6 @@ func (s *Server) cacheDownloadedStatus() {
 			s.monitorNumCache.Set(item.ID, ms.MonitoredNum)
 			s.downloadNumCache.Set(item.ID, ms.DownloadedNum)
 		}
-	}
-
-	list = s.db.GetMediaWatchlist(media.MediaTypeMovie)
-	for _, item := range list {
-		_, ok2 := s.downloadNumCache.Get(item.ID)
-		if ok2 {
-			continue
-		}
-
-		dummyEp, err := s.db.GetMovieDummyEpisode(item.ID)
-		if err != nil {
-			log.Errorf("get dummy episode: %v", err)
-		} else {
-
-			if dummyEp.Status == episode.StatusDownloaded {
-				s.downloadNumCache.Set(item.ID, 1)
-			}
-
-		}
-	}
-
-}
-
-//missing: episode aired missing
-//downloaded: all monitored episode downloaded
-//monitoring: episode aired downloaded, but still has not aired episode
-//for movie, only monitoring/downloaded
-
-func (s *Server) GetTvWatchlist(c *gin.Context) (interface{}, error) {
-	list := s.db.GetMediaWatchlist(media.MediaTypeTv)
-	res := make([]MediaWithStatus, len(list))
-	for i, item := range list {
-		var ms = MediaWithStatus{
-			Media:         item,
-			MonitoredNum:  0,
-			DownloadedNum: 0,
-		}
-		mon, ok1 := s.monitorNumCache.Get(item.ID)
-		dow, ok2 := s.downloadNumCache.Get(item.ID)
-		if ok1 && ok2 {
-			ms.MonitoredNum = mon
-			ms.DownloadedNum = dow
-		} else {
-			continue
-		}
 
 		res[i] = ms
 	}
@@ -183,7 +144,19 @@ func (s *Server) GetMovieWatchlist(c *gin.Context) (interface{}, error) {
 		dow, ok2 := s.downloadNumCache.Get(item.ID)
 		if ok2 {
 			ms.DownloadedNum = dow
-		} 
+		} else {
+			dummyEp, err := s.db.GetMovieDummyEpisode(item.ID)
+			if err != nil {
+				log.Errorf("get dummy episode: %v", err)
+			} else {
+				ms.DownloadedNum++
+				if dummyEp.Status == episode.StatusDownloaded {
+					s.downloadNumCache.Set(item.ID, 1)
+				}
+
+			}
+
+		}
 		res[i] = ms
 	}
 	return res, nil
