@@ -7,14 +7,14 @@ import (
 
 func (c *Engine) housekeeping() error {
 	log.Infof("start housekeeping tasks...")
-	
+
 	if err := c.checkDbScraps(); err != nil {
 		return err
 	}
 	if err := c.checkImageFilesInterity(); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -37,15 +37,21 @@ func (c *Engine) checkDbScraps() error {
 		log.Debugf("get all episodes error: %v", err)
 		return err
 	}
+	count := 0
 	log.Infof("check db scraps, total episodes: %v, total media: %v", len(allEpisodes), len(validMediaIDs))
 	for _, ep := range allEpisodes {
 		if _, ok := validMediaIDs[ep.MediaID]; !ok {
-			log.Infof("remove scrap episode record: %v S%vE%v", ep.MediaID, ep.SeasonNumber, ep.EpisodeNumber)
+			//log.Infof("remove scrap episode record: %v S%vE%v", ep.MediaID, ep.SeasonNumber, ep.EpisodeNumber)
 			if err := c.db.DeleteEpisode(ep.ID); err != nil {
 				log.Errorf("delete scrap episode record error: %v", err)
 			}
+			count++
+			if count%100 == 0 {
+				log.Infof("%v scrap episode records removed...", count)
+			}
 		}
 	}
+	log.Infof("%v scrap episode records removed...", count)
 
 	return nil
 }
