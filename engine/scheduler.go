@@ -43,6 +43,7 @@ func (c *Engine) addSysCron() {
 	c.registerCronJob("check_series_new_release", "0 0 */12 * * *", c.checkAllSeriesNewSeason)
 	c.registerCronJob("update_import_lists", "0 */20 * * * *", c.periodicallyUpdateImportlist)
 	c.registerCronJob("housekeeping", "0 0 * * * *", c.housekeeping)
+	go c.housekeeping() //run once on startup
 
 	c.schedulers.Range(func(key string, value scheduler) bool {
 		log.Debugf("add cron job: %v", key)
