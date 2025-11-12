@@ -26,10 +26,10 @@ import (
 func NewServer(db db.Database) *Server {
 	s := &Server{
 		db:               db,
-		srv: &http.Server{},
+		srv:              &http.Server{},
 		language:         db.GetLanguage(),
-		monitorNumCache:  cache.NewCache[int, int](10 * time.Minute),
-		downloadNumCache: cache.NewCache[int, int](10 * time.Minute),
+		monitorNumCache:  cache.NewCache[int, int](30 * time.Minute),
+		downloadNumCache: cache.NewCache[int, int](30 * time.Minute),
 	}
 	s.core = engine.NewEngine(db, s.language)
 	s.setupRoutes()
@@ -58,7 +58,7 @@ func (s *Server) setupRoutes() {
 	} else {
 		log.Warnf("serve web static files error: %v", err)
 	}
-	
+
 	//s.r.Use(ginzap.Ginzap(log.Logger().Desugar(), time.RFC3339, false))
 	r.Use(ginzap.RecoveryWithZap(log.Logger().Desugar(), true))
 
@@ -178,6 +178,14 @@ func (s *Server) Start(addr string) (int, error) {
 	}()
 
 	log.Infof("----------- Polaris Server Successfully Started on Port %d------------", p)
+
+	ticker := time.NewTicker(10 * time.Minute)
+	go func() {
+		for {
+			s.cacheDownloadedStatus()
+			<-ticker.C
+		}
+	}()
 
 	return p, nil
 }
