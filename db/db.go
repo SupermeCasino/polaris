@@ -31,7 +31,6 @@ import (
 	"modernc.org/sqlite"
 )
 
-
 // https://github.com/ent/ent/discussions/1667#discussioncomment-1132296
 type sqliteDriver struct {
 	*sqlite.Driver
@@ -237,8 +236,8 @@ func (c *client) GetAllEpisodes() (ent.Episodes, error) {
 	return ep, err
 }
 
-func (c *client) DeleteEpisode(id int) error {
-	_, err := c.ent.Episode.Delete().Where(episode.ID(id)).Exec(context.TODO())
+func (c *client) DeleteEpisode(ids ...int) error {
+	_, err := c.ent.Episode.Delete().Where(episode.IDIn(ids...)).Exec(context.TODO())
 	return err
 }
 func (c *client) GetEpisode(seriesId, seasonNum, episodeNum int) (*ent.Episode, error) {

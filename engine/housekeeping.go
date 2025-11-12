@@ -37,21 +37,21 @@ func (c *Engine) checkDbScraps() error {
 		log.Debugf("get all episodes error: %v", err)
 		return err
 	}
-	count := 0
+
 	log.Infof("check db scraps, total episodes: %v, total media: %v", len(allEpisodes), len(validMediaIDs))
+	toDeleteIds := make([]int, 0)
 	for _, ep := range allEpisodes {
 		if _, ok := validMediaIDs[ep.MediaID]; !ok {
 			//log.Infof("remove scrap episode record: %v S%vE%v", ep.MediaID, ep.SeasonNumber, ep.EpisodeNumber)
-			if err := c.db.DeleteEpisode(ep.ID); err != nil {
-				log.Errorf("delete scrap episode record error: %v", err)
-			}
-			count++
-			if count%100 == 0 {
-				log.Infof("%v scrap episode records removed...", count)
-			}
+			toDeleteIds = append(toDeleteIds, ep.ID)
 		}
 	}
-	log.Infof("%v scrap episode records removed...", count)
+
+	log.Infof("%v scrap episode records will be removed...", len(toDeleteIds))
+
+	if err := c.db.DeleteEpisode(toDeleteIds...); err != nil {
+		log.Errorf("delete scrap episode records error: %v", err)
+	}
 
 	return nil
 }

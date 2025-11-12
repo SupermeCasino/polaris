@@ -75,7 +75,7 @@ type MediaApis interface {
 
 type EpisodeApis interface {
 	GetAllEpisodes() (ent.Episodes, error)
-	DeleteEpisode(id int) error
+	DeleteEpisode(ids ...int) error
 	GetEpisode(seriesId, seasonNum, episodeNum int) (*ent.Episode, error)
 	GetEpisodeByID(epID int) (*ent.Episode, error)
 	UpdateEpiode(episodeId int, name, overview string) error
