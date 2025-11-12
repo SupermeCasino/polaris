@@ -232,6 +232,15 @@ func (c *client) GetMediaWatchlist(mediaType media.MediaType) []*ent.Media {
 	return list
 }
 
+func (c *client) GetAllEpisodes() (ent.Episodes, error) {
+	ep, err := c.ent.Episode.Query().All(context.TODO())
+	return ep, err
+}
+
+func (c *client) DeleteEpisode(id int) error {
+	_, err := c.ent.Episode.Delete().Where(episode.ID(id)).Exec(context.TODO())
+	return err
+}
 func (c *client) GetEpisode(seriesId, seasonNum, episodeNum int) (*ent.Episode, error) {
 	return c.ent.Episode.Query().Where(episode.MediaID(seriesId), episode.SeasonNumber(seasonNum),
 		episode.EpisodeNumber(episodeNum)).First(context.TODO())

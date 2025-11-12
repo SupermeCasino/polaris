@@ -59,7 +59,6 @@ type Settings interface {
 	GetAcceptedSubtitleFormats() ([]string, error)
 	SetAcceptedSubtitleFormats(key string, v []string) error
 	GetTmdbApiKey() string
-
 }
 
 type MediaApis interface {
@@ -75,6 +74,8 @@ type MediaApis interface {
 }
 
 type EpisodeApis interface {
+	GetAllEpisodes() (ent.Episodes, error)
+	DeleteEpisode(id int) error
 	GetEpisode(seriesId, seasonNum, episodeNum int) (*ent.Episode, error)
 	GetEpisodeByID(epID int) (*ent.Episode, error)
 	UpdateEpiode(episodeId int, name, overview string) error
@@ -89,7 +90,6 @@ type EpisodeApis interface {
 	UpdateEpisodeTargetFile(id int, filename string) error
 	GetSeasonEpisodes(mediaId, seasonNum int) ([]*ent.Episode, error)
 	CleanAllDanglingEpisodes() error
-
 }
 
 type IndexerApis interface {
@@ -97,7 +97,6 @@ type IndexerApis interface {
 	DeleteIndexer(id int)
 	GetIndexer(id int) (*ent.Indexers, error)
 	GetAllIndexers() []*ent.Indexers
-
 }
 
 type HistoryApis interface {
@@ -108,5 +107,5 @@ type HistoryApis interface {
 	GetHistories() ent.Histories
 	DeleteHistory(id int) error
 	GetDownloadHistory(mediaID int) ([]*ent.History, error)
-	GetMovieDummyEpisode(movieId int) (*ent.Episode, error)	
+	GetMovieDummyEpisode(movieId int) (*ent.Episode, error)
 }
