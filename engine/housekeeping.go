@@ -34,8 +34,10 @@ func (c *Engine) checkDbScraps() error {
 
 	allEpisodes, err := c.db.GetAllEpisodes()
 	if err != nil {
+		log.Debugf("get all episodes error: %v", err)
 		return err
 	}
+	log.Infof("check db scraps, total episodes: %v, total media: %v", len(allEpisodes), len(validMediaIDs))
 	for _, ep := range allEpisodes {
 		if _, ok := validMediaIDs[ep.MediaID]; !ok {
 			log.Infof("remove scrap episode record: %v S%vE%v", ep.MediaID, ep.SeasonNumber, ep.EpisodeNumber)
