@@ -54,7 +54,7 @@ jobs:
         run: |
           cd ui
           flutter pub get
-          flutter build web --no-web-resources-cdn
+          flutter build web --no-web-resources-cdn --wasm --release
 
       - name: Build and push
         id: push

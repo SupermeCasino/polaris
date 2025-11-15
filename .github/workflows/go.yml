@@ -40,7 +40,7 @@ jobs:
         run: |
           cd ui
           flutter pub get
-          flutter build web --no-web-resources-cdn
+          flutter build web --no-web-resources-cdn --wasm --release
           
       - name: Extract metadata (tags, labels) for Docker
         id: meta
