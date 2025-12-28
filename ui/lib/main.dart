@@ -149,7 +149,13 @@ class _MyAppState extends ConsumerState<MyApp> {
     return MaterialApp.router(
       title: 'Polaris 影视追踪下载',
       theme: ThemeData(
-          fontFamily: "NotoSansSC",
+          //fontFamily: "NotoSansSC",
+          fontFamilyFallback: [
+            'PingFang SC',
+            'Microsoft YaHei',
+            'Noto Sans SC',
+            'NotoSansSC', // buildin font
+          ],
           colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.blueAccent,
               brightness: Brightness.dark,
